@@ -1,0 +1,385 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <title>Page Title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul,li, ol {
+            list-style: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        body {
+            background-color: #efefef
+        }
+
+        .wrap {
+            width: 1000px;
+            height: auto;
+            float: left;
+            margin-left: calc(calc(100% - 1000px)/2);
+            background-color: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .list {
+            width: 100%;
+            height: auto;
+            float: left;
+        }
+
+        .list>li {
+            width: 100%;
+            min-height: 100px;
+            float: left;
+            box-sizing: border-box;
+            padding: 0 10px;
+            margin: 10px 0;
+        }
+
+        .list>li>.top {
+            width: 100%;
+            height: auto;
+            float: left;
+            margin-bottom: 15px;
+        }
+        .list>li>.table{
+            width: 100%;
+            height: auto;
+            float: left;
+        }
+        .list>li>.table>ul{
+            width: 50%;
+            height: auto;
+            float: left;
+        }
+
+        .list>li>.top>h2 {
+            font-weight: 300;
+            height: 100%;
+            width: 90px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .list>li>.top>span {
+            display: block;
+            width: auto;
+            display: table-cell;
+            vertical-align: middle;
+            padding: 10px 0;
+        }
+
+        .list>li>.bot {
+            width: 100%;
+            height: auto;
+            float: left;
+            margin-top: 30px;
+        }
+
+        .list>li>.bot>.input {
+            width: 100%;
+            height: 40px;
+            padding: 0 15px;
+            font-size: 26px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background-color: #eee;
+            margin-bottom: 10px;
+            outline: none;
+            display: table-cell;
+            vertical-align: middle;
+            max-height: 90px;
+        }
+
+        .list>li>.bot>.input:focus {
+            background-color: rgba(0, 153, 204, .1);
+            border-color: #0099cc;
+            color: #4c4c4c;
+        }
+
+        .wrap>.nav {
+            width: 100%;
+            height: 50px;
+            float: left;
+            background-color: #CE6D39;
+            overflow-y: hidden;
+            overflow-x: scroll;
+        }
+
+        .wrap>.nav>.navList {
+            width: 100%;
+            height: 100%;
+            float: left;
+        }
+
+        .wrap>.nav>.navList>li {
+            width: 100px;
+            height: 100%;
+            text-align: center;
+            color: #FFEEE4;
+            float: left;
+            line-height: 30px;
+            cursor: pointer;
+        }
+
+        .wrap>.fileSelect {
+            width: 100%;
+            height: 50px;
+            float: left;
+            position: relative;
+        }
+
+        .wrap>.fileSelect>span {
+            display: block;
+            width: 100%;
+            height: 100%;
+            float: left;
+            line-height: 50px;
+            font-size: 20px;
+            padding-left: 30px;
+            box-sizing: border-box;
+        }
+
+        .wrap>.fileSelect>input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .submit{
+            width: 80px;
+            height: 40px;
+            line-height: 40px;
+            color: #fff;
+            background-color: #0069d9;
+            border: 1px solid #0062cc;
+            font-weight: 400;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .colList{
+            width: 100%;height: auto;float: left;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+  crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="iscroll.js"></script>
+    <script>
+        let wb = "";
+
+        function readExcel(event) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function() {
+                var fileData = reader.result;
+                wb = XLSX.read(fileData, {
+                    type: 'binary'
+                });
+                var sheetNameList = wb.SheetNames; // 시트 이름 목록 가져오기 
+                var str = "";
+                var cnt=0;
+                for (var i in sheetNameList) {
+                    str += "<li onclick='select(this);' data-sheet='" + sheetNameList[i] + "'>" + sheetNameList[i] + "</li>";
+                    cnt=i;
+                }
+                $('.navList').html(str);
+                var ww=$('.navList>li').width();
+                var wrapW=ww*(parseInt(cnt)+1);
+                $('.navList').css({
+                    width:wrapW
+                });
+                
+            };
+            reader.readAsBinaryString(input.files[0]);
+        }
+
+        function select(target) {
+            var sheetName = $(target).data('sheet');
+            var jsonSheet = XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
+            var number = 1;
+            var tag = "";
+            for (var item of jsonSheet) {
+                tag += "<li><div class='top'><h2>문제"+number+".</h2>";
+                tag += "  <span>" + item['quiz'] + "</span></div>";
+                tag +="<div class='table'><ul class='right'></ul><ul class='left'></ul></div>"
+                tag += "<div class='bot'>";
+                for (var i = 0; i < item['cnt']; i++) {
+                    var anlist="";
+                    var answer=item['answer'];
+                    if(isNaN(answer)){
+                        if(answer.indexOf('|')){
+                            anlist=answer.split('|');
+                        }else{
+                            anlist[0]=answer;
+                        }    
+                    }
+                    tag += "<textarea ans='" + anlist[i] + "' type='text' class='input'></textarea>";
+                }
+                tag += "</div></li>";
+                number++;
+            }
+            $('.list').html(tag);
+            $('.submit').removeClass('once');
+            //엑셀에 있는 시트별로 데이터를 따로 가져올수 있으니 이제 화면 구성해서 만들면 될 듯
+        }
+
+        function makeObj(answer,correct){
+            var jlast = 0;
+            var obj = Array();
+            var i = 0;
+            var j = 0,ilast = -1;
+            for (var i = 0; i < correct.length; i++) {
+                if (j == (answer.length)) {
+                    break;
+                }
+                for (j = jlast; j < answer.length; j++) {
+                    //console.log(correct[i]+"---"+answer[j])
+                    if (correct[i] == answer[j]) {
+                        obj.push({
+                            word: answer[j],
+                            exi: 't'
+                        });
+                        ilast = (i + 1);
+                        jlast = (j + 1);
+                        break;
+                    } else {
+                        obj.push({
+                            word: answer[j],
+                            exi: 'f'
+                        });
+                    }
+                }
+            }
+            /*console.log(`비교 시작 ::: ${answer} ===== ${correct}`);
+            console.log(obj);*/
+            if (ilast == -1) {
+                ilast = 0;
+            }
+            for (var k = ilast; k < correct.length; k++) {
+                obj.push({
+                    word: correct[k],
+                    exi: 'n'
+                });
+            }
+            
+            var cnt=0;
+            for(var k=0;k<obj.length;k++){
+                if(obj[k]['exi']=="t"){
+                    cnt++;
+                }
+            }
+            if((correct.length)==cnt){
+                obj.push({
+                    process:'done'
+                })
+            }
+         
+            return obj;
+        }
+        function sentence(obj){
+            var display="<span style='height:auto;float:left;'>";
+            var last=obj.length-1;
+            if(obj[last]['process']=="done"){
+                for (var items of obj) {
+                    if(items['process']=="done"){break;}
+                    if(items['exi']=="f"){continue;}
+                    display += "<span style='color:green'>" + items['word'] + "</span>";
+                }
+            }else{
+                for (var items of obj) {
+                    if (items['exi'] == "f") {
+                        display += "<span style='color:red;text-decoration:line-through;'>" + items['word'] + "</span>";
+                    } else if (items['exi'] == "t") {
+                        display += "<span style='color:green'>" + items['word'] + "</span>";
+                    } else if (items['exi'] == "n") {
+                        display += "<span style='color:blue;'>" + items['word'] + "</span>";
+                    }
+                }
+            }
+            display+="</span>";
+            return display;
+        }
+
+
+        $(document).ready(function() {
+            $(document).on('mouseenter', '.input', function() {
+                var txt = $(this).attr('ans');
+                var tit=txt.slice(0,2)+"...";
+                $(this).attr('title',tit);
+            })
+            $('.wrap>.fileSelect>input').click(function() {
+                $('.wrap>.fileSelect>span').text('파일을 변경')
+            });
+            $('.submit').click(function() {
+                if($(this).hasClass('once')){
+                    return false;
+                }
+                $('.input').each(function(index, item) {
+                    var collect = $(item).attr('ans');
+                    $(item).parents('li').find('.table>.right').append('<li class="colList"><span style="color:#CE6D39;font-size:16px;font-weight:600;margin-right:30px;">' + collect + '</span></li>')
+
+                    var answer = $(item).val();
+
+                    if(collect.indexOf(',')<0){
+                        var obj = makeObj(answer,collect);
+                        var str=sentence(obj);
+                        $(item).parents('li').find('.table>.left').append("<li class='colList'>"+str+"</li>");
+                    }else{
+                        var collArr=collect.split(',');
+                        var longStr="";
+                        for(var k=0;k<collArr.length;k++){
+                            answer=answer.replace(' ','');
+                            collArr[k]=collArr[k].replace(' ','');
+                            var obj = makeObj(answer,collArr[k]);
+                        
+                            var str=sentence(obj);
+                            longStr+=str;
+                        }
+                        $(item).parents('li').find('.table>.left').append("<li class='colList'>"+longStr+"</li>");
+                    }
+                })
+                $(this).addClass('once');
+            })
+        })
+    </script>
+
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="fileSelect">
+            <span>파일을 선택해 주세요</span>
+            <input type="file" onchange="readExcel(event)">
+        </div>
+        <nav class="nav">
+            <ul class="navList">
+                
+            </ul>
+        </nav>
+        <ul class="list">
+        </ul>
+        <button type="button" class="submit">제출</button>
+    </div>
+</body></html>
