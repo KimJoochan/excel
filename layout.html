@@ -26,10 +26,10 @@
         }
 
         .wrap {
-            width: 1000px;
+            width: 100%;
             height: auto;
             float: left;
-            margin-left: calc(calc(100% - 1000px)/2);
+            /*margin-left: calc(calc(100% - 1000px)/2);*/
             background-color: #fff;
             padding: 10px;
             box-sizing: border-box;
@@ -181,6 +181,17 @@
         .colList{
             width: 100%;height: auto;float: left;
         }
+        .up{
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 28px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
   crossorigin="anonymous"></script>
@@ -324,6 +335,11 @@
 
 
         $(document).ready(function() {
+            $('.up').click(function(){
+                $('body,html').animate({
+                    scrollTop:0
+                });
+            })
             $(document).on('mouseenter', '.input', function() {
                 var txt = $(this).attr('ans');
                 var tit=txt.slice(0,2)+"...";
@@ -368,6 +384,7 @@
 </head>
 
 <body>
+   <div class="up">▲</div>
     <div class="wrap">
         <div class="fileSelect">
             <span>파일을 선택해 주세요</span>
